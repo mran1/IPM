@@ -5,8 +5,6 @@ export class Main extends Component{
     handleOnClick(){
         axios.get("http://localhost:7777").then((resp) => {
             console.log(resp);
-        }).catch((err) => {
-            console.log(err);
         })
 
     }
