@@ -1,20 +1,34 @@
-import React,{Component} from 'react';
-import axios from 'axios';
-export class Main extends Component{
+import React from 'react';
+import {Router,Route, Redirect} from 'react-router-dom';
+import {CreateRoomConnector} from './CreateRoom';
+import {Provider} from 'react-redux';
+import {store} from '../store/index';
+import {history} from '../store/history'
+import {AuthenticateConnector} from './Authenticate';
+import {ErrorConnector} from './Error';
 
-    handleOnClick(){
-        axios.get("http://localhost:7777").then((resp) => {
-            console.log(resp);
-        })
-
-    }
+const RouteGuard=(Component)=>({match})=>{
+    let type = match.path.split("/");
     
-    render(){
-        return(
-            <div>
-                <button onClick={this.handleOnClick}>Click to call</button>
-            </div>
-        )
+    if (type[1] === "user") {
+        let id = match.params.userId;
+        return <Component id={id} type={type[1]}/>
+    }else if(type[1] === "admin"){
+        let id = match.params.adminId;
+        return <Component id={id} type={type[1]}/>
     }
-
+    return <Redirect to="/error" />
 }
+
+export const Main = () => (
+    <Router history={history}>
+        <Provider store={store}>
+            <div>
+                <Route exact path="/" render={() => <CreateRoomConnector />}></Route>
+                <Route exact path="/user/:userId" render={RouteGuard(AuthenticateConnector)}></Route>
+                <Route exact path="/admin/:adminId" render={RouteGuard(AuthenticateConnector)}></Route>
+                <Route exact path = "/error" render={() => <ErrorConnector />}></Route>
+            </div>
+        </Provider>
+    </Router>
+)
